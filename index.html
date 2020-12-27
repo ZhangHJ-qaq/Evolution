@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>袋鼠可视化</title>
+    <link rel="stylesheet" href="css/FlexHelper.css">
+</head>
+<body>
+
+<script src="js/library/plotly.js"></script>
+<script src="js/util/Util.js"></script>
+<script src="js/class/Kangaroo.js"></script>
+<script src="js/class/KangarooProblem.js"></script>
+<script src="js/Main.js"></script>
+
+<div id="tester"></div>
+<button id="button" style="width: 100%">
+    进化
+</button>
+<div style="align-content: center" id="output">
+
+</div>
+
+
+<script>
+    let kangarooProblem = new KangarooProblem(200);
+
+    draw(kangarooProblem);
+
+
+    let button = document.getElementById("button");
+    let outputArea = document.getElementById("output");
+    let generation = 1;
+
+    button.addEventListener("click", function () {
+        kangarooProblem.evolve();
+        draw(kangarooProblem);
+        output(kangarooProblem);
+    });
+
+
+    function draw(kangarooProblem) {
+        let TESTER = document.getElementById('tester');
+
+        let func = kangarooProblem.function;
+        let lowerBound = kangarooProblem.lowerBound;
+        let higherBound = kangarooProblem.higherBound;
+        let gap = 0.01;
+
+        let x = [];
+        let y = [];
+        for (let i = lowerBound; i <= higherBound; i += gap) {
+            x[x.length] = i;
+            y[y.length] = func(i);
+        }
+
+        let trace1 = {
+            x: x,
+            y: y,
+            mode: 'line',
+            type: 'scatter',
+            name:'山脉 函数f(x)=sin(2x)+cos(x)'
+        };
+
+        let x2 = [];
+        let y2 = [];
+
+        for (let kangaroo of kangarooProblem.kangaroos) {
+            x2.push(kangarooProblem.getKangarooPosition(kangaroo));
+            y2.push(kangarooProblem.getKangarooHeight(kangaroo));
+
+        }
+
+        let trace2 = {
+            x: x2,
+            y: y2,
+            mode: 'markers',
+            type: 'scatter',
+            name: '袋鼠'
+        };
+
+
+        let data = [trace1, trace2];
+
+        Plotly.newPlot(TESTER, data);
+
+
+    }
+
+    function output(kangarooProblem) {
+        let kangaroos = kangarooProblem.kangaroos;
+        let s = `当前是第${generation}代\n`;
+
+        let count = 0;
+        for (let singleKan of kangaroos) {
+            s += `袋鼠${count}号：横坐标 ${kangarooProblem.getKangarooPosition(singleKan)} ,海拔： ${kangarooProblem.getKangarooHeight(singleKan)} \n`;
+            count++;
+        }
+
+        outputArea.innerText = s;
+        generation++;
+    }
+
+
+</script>
+
+</body>
+</html>
